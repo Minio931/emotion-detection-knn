@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 from sklearn.manifold import TSNE
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.neighbors import KNeighborsClassifier
 
 from functions import extract_feature, save_to_csv, create_directory_if_not_exists
@@ -144,9 +144,44 @@ class EmotionDetectionTrainer:
 
         predictions = knn.predict(validation_features)
 
-        print(f'Accuracy: {np.mean(predictions == validation_labels)}')
+        accuracy = np.mean(predictions == validation_labels)
+        class_report = classification_report(validation_labels, predictions, output_dict=False)
+        conf_matrix = confusion_matrix(validation_labels, predictions)
+
+        print(f'Accuracy: {accuracy}')
         print(f"Classification Report: {classification_report(validation_labels, predictions)}")
         print(f"Confusion Matrix: {pd.crosstab(np.array(validation_labels), predictions, rownames=['Actual'], colnames=['Predicted'])}")
+
+        output_dir = "./results"
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Classification Report
+        with open(os.path.join(output_dir, "classification_report.txt"), "w") as file:
+            file.write(f"Accuracy: {accuracy}\n\n")
+            file.write("Classification Report:\n")
+            file.write(classification_report(validation_labels, predictions))
+
+        # Confusion Matrix
+        conf_matrix_df = pd.DataFrame(conf_matrix, index=[f"Actual_{i}" for i in set(validation_labels)],
+                                      columns=[f"Predicted_{i}" for i in set(validation_labels)])
+        conf_matrix_df.to_csv(os.path.join(output_dir, "confusion_matrix.csv"))
+
+        # Rysowanie macierzy konfuzji
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
+                    xticklabels=[f"{i}" for i in set(validation_labels)],
+                    yticklabels=[f"{i}" for i in set(validation_labels)])
+        plt.title('Confusion Matrix Heatmap')
+        plt.xlabel('Predicted')
+        plt.ylabel('Actual')
+        plt.savefig(os.path.join(output_dir, "confusion_matrix_heatmap.png"), dpi=300, bbox_inches='tight')
+        plt.show()
+
+        print(f"Results saved in {output_dir}")
+
+
+
+
 
 
 
