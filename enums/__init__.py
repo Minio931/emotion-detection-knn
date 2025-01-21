@@ -6,3 +6,4 @@ from .actor_enum import Actor
 from .emotional_intensity_enum import EmotionalIntensity
 from .statement_enum import Statement
 from .repetition_enum import Repetition
+from .normalize_method_enum import NormalizeMethod

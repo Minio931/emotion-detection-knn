@@ -17,9 +17,6 @@ from functions.read_from_csv import read_from_csv
 from models.audio_file import AudioFile
 
 
-
-
-
 class EmotionDetectionTrainer:
     def __init__(self, audio_folder):
         self.audio_folder = audio_folder
@@ -155,18 +152,15 @@ class EmotionDetectionTrainer:
         output_dir = "./results"
         os.makedirs(output_dir, exist_ok=True)
 
-        # Classification Report
         with open(os.path.join(output_dir, "classification_report.txt"), "w") as file:
             file.write(f"Accuracy: {accuracy}\n\n")
             file.write("Classification Report:\n")
             file.write(classification_report(validation_labels, predictions))
 
-        # Confusion Matrix
         conf_matrix_df = pd.DataFrame(conf_matrix, index=[f"Actual_{i}" for i in set(validation_labels)],
                                       columns=[f"Predicted_{i}" for i in set(validation_labels)])
         conf_matrix_df.to_csv(os.path.join(output_dir, "confusion_matrix.csv"))
 
-        # Rysowanie macierzy konfuzji
         plt.figure(figsize=(10, 8))
         sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
                     xticklabels=[f"{i}" for i in set(validation_labels)],
