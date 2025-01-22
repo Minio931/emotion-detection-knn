@@ -36,6 +36,10 @@ class AudioFileProcessor:
     def visualize_features(self, **kwargs):
         self.visualization_manager.visualize_pca_features(self.audio_files, **kwargs)
 
+    @logger(description="Wizualizacja propercji")
+    def visualize_properties_distribution(self, **kwargs):
+        self.visualization_manager.visualize_properties_distribution(self.audio_files, **kwargs)
+
 
     def __update_audio_files(self, audio_files):
         self.audio_files = audio_files

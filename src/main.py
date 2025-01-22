@@ -1,3 +1,5 @@
+import pandas as pd
+
 from src.enums import NormalizeMethod
 from .audio_preprocessing import AudioFileProcessor
 from .dataset_handler import DatasetHandler
@@ -17,6 +19,7 @@ def main():
     method = NormalizeMethod.STANDARD_SCALER
     audio_file_processor.normalize_features(method.value)
     audio_file_processor.visualize_features()
+    audio_file_processor.visualize_properties_distribution(properties=['emotion', 'modality', 'vocal_channel', 'emotional_intensity', 'statement', 'repetition', 'actor'])
 
     print("2. Podział danych na zbiór treningowy i testowy")
     audio_files_data = audio_file_processor.audio_files
@@ -27,8 +30,8 @@ def main():
     print(f"Zbiór testowy: {len(test_data)}")
 
     print("3. Zapis danych do pliku")
-    dataset_handler.save_data_to_file(train_data, '/home/dominik/Projects/emotion-detection-knn/data/train_data.csv')
-    dataset_handler.save_data_to_file(test_data, '/home/dominik/Projects/emotion-detection-knn/data/test_data.csv')
+    dataset_handler.save_data_to_file(pd.DataFrame(train_data), '/home/dominik/Projects/emotion-detection-knn/data/train_data.csv')
+    dataset_handler.save_data_to_file(pd.DataFrame(test_data), '/home/dominik/Projects/emotion-detection-knn/data/test_data.csv')
 
     print("4. Uczenie modelu")
     knn_model = ModelTrainer(train_data, test_data, '/home/dominik/Projects/emotion-detection-knn/results')
