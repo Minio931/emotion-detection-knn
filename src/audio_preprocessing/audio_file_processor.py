@@ -2,39 +2,39 @@ import sys
 import librosa
 import numpy as np
 
-from enums import NormalizeMethod
+from src.enums import NormalizeMethod
 from src.audio_preprocessing.audio_file_factory import AudioFileFactory
 from src.audio_preprocessing.normalization_handler import NormalizationHandler
 from src.file_reader import FileManager
+from src.decorators import logger
+from src.visualization_manager.visualization_manager import VisualizationManager
 
 
 class AudioFileProcessor:
-    def __init__(self, audio_folder_path, extension):
+    def __init__(self, audio_folder_path, extension, visulaizations_folder_path="../visualizations"):
         self.audio_folder_path = audio_folder_path
         self.extension = extension
         self.audio_files = []
+        self.visualization_manager = VisualizationManager(visualizations_folder_path=visulaizations_folder_path)
 
+    @logger(description="Wczytywanie plików audio")
     def load_audio_files(self):
         audio_names_with_paths = self.__get_audio_file_paths()
         self.__update_audio_files(AudioFileFactory.create_audio_files(audio_names_with_paths))
 
+    @logger(description="Aktualizacja cech dla plików")
     def update_features_for_files(self):
         for audio_file in self.audio_files:
             features = self.__extract_file_features(audio_file)
             audio_file = self.__update_audio_file_features(audio_file, features)
 
+    @logger(description="Normalizacja cech")
     def normalize_features(self, method):
-        match method:
-            case NormalizeMethod.STANDARD_SCALER:
-                self.__normalize_features_with_selected_method(NormalizeMethod.STANDARD_SCALER)
-            case NormalizeMethod.MIN_MAX_SCALER:
-                self.__normalize_features_with_selected_method(NormalizeMethod.MIN_MAX_SCALER)
-            case NormalizeMethod.L2_NORMALIZER:
-                self.__normalize_features_with_selected_method(NormalizeMethod.L2_NORMALIZER)
-            case NormalizeMethod.LOGARITHMIC_SCALER:
-                self.__normalize_features_with_selected_method(NormalizeMethod.LOGARITHMIC_SCALER)
-            case _:
-               raise ValueError(f"Nie znaleziono metody: {method}")
+        self.__normalize_features_with_selected_method(method)
+
+    @logger(description="Wizualizacja cech")
+    def visualize_features(self, **kwargs):
+        self.visualization_manager.visualize_pca_features(self.audio_files, **kwargs)
 
 
     def __update_audio_files(self, audio_files):
@@ -55,6 +55,7 @@ class AudioFileProcessor:
 
 
     def __extract_file_features(self, audio_file):
+        print(f"Ekstrakcja cech dla pliku: {audio_file.path}")
         audio, sr = librosa.load(audio_file.path, sr=None)
         mfccs = np.mean(librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=40).T, axis=0)
         chroma = np.mean(librosa.feature.chroma_stft(y=audio, sr=sr).T, axis=0)

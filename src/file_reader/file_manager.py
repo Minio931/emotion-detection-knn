@@ -41,3 +41,13 @@ class FileManager:
             print(f'Created directory: {file_path}')
         else:
             print(f'Directory already exists: {file_path}')
+
+
+    @staticmethod
+    def save_to_file(file_path, data, title):
+        FileManager.create_directory_if_not_exists(file_path)
+        with open(file_path, 'w') as file:
+            file.write(title)
+            file.write("=" * 50 + "\n")
+            file.write(data)
+        print(f'Dane zostały zapisane do pliku: {file_path}')

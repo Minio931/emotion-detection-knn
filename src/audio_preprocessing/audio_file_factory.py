@@ -4,7 +4,11 @@ import numpy as np
 import ast
 import re
 
+from src.decorators import logger
+
+
 class AudioFileFactory:
+    @logger(description="Tworzenie obiektów AudioFile")
     @staticmethod
     def create_audio_files(file_paths):
         audio_files = []
@@ -14,6 +18,7 @@ class AudioFileFactory:
 
         return audio_files
 
+    @logger(description="Tworzenie obiektów AudioFile z pliku CSV")
     @staticmethod
     def create_audio_files_from_csv(data):
         audio_files = []
