@@ -17,12 +17,12 @@ class FileManager:
         ]
 
     @staticmethod
-    def save_to_csv(file_path, data_frame):
+    def save_to_csv(data_frame, file_path, file_name='data'):
         if not isinstance(data_frame, pd.DataFrame):
             raise ValueError("Podałeś zły typ danych. Oczekiwano DataFrame")
 
         FileManager.create_directory_if_not_exists(file_path)
-        data_frame.to_csv(file_path, index=False)
+        data_frame.to_csv(os.path.join(file_path, file_name), index=False)
         print(f"Dane zostały zapisane do pliku: {file_path}")
 
     @staticmethod
@@ -44,10 +44,14 @@ class FileManager:
 
 
     @staticmethod
-    def save_to_file(file_path, data, title):
+    def save_to_file(file_path, file_name, data, title):
         FileManager.create_directory_if_not_exists(file_path)
-        with open(file_path, 'w') as file:
+        with open(os.path.join(file_path, file_name), 'w') as file:
             file.write(title)
             file.write("=" * 50 + "\n")
             file.write(data)
         print(f'Dane zostały zapisane do pliku: {file_path}')
+
+    @staticmethod
+    def file_exists(file_path):
+        return os.path.exists(file_path)

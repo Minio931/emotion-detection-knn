@@ -1,6 +1,9 @@
+import ast
+import re
 import sys
 import librosa
 import numpy as np
+import pandas as pd
 
 from src.enums import NormalizeMethod
 from src.audio_preprocessing.audio_file_factory import AudioFileFactory
@@ -22,6 +25,16 @@ class AudioFileProcessor:
         audio_names_with_paths = self.__get_audio_file_paths()
         self.__update_audio_files(AudioFileFactory.create_audio_files(audio_names_with_paths))
 
+    @logger(description="Wczytywanie plików audio z pliku CSV")
+    def load_audio_files_from_csv(self, file_path):
+        audio_files = self.__load_audio_files_from_csv(file_path)
+        self.__update_audio_files(audio_files)
+
+    @staticmethod
+    @logger(description="Zapis danych do pliku")
+    def format_audio_files_as_dataframe(data):
+        return pd.DataFrame([audio_file.__dict_original__() for audio_file in data])
+
     @logger(description="Aktualizacja cech dla plików")
     def update_features_for_files(self):
         for audio_file in self.audio_files:
@@ -38,8 +51,8 @@ class AudioFileProcessor:
 
     @logger(description="Wizualizacja propercji")
     def visualize_properties_distribution(self, **kwargs):
-        self.visualization_manager.visualize_properties_distribution(self.audio_files, **kwargs)
-
+        data_frame = pd.DataFrame([audio_file.__dict__() for audio_file in self.audio_files])
+        self.visualization_manager.visualize_properties_distribution(data_frame, **kwargs)
 
     def __update_audio_files(self, audio_files):
         self.audio_files = audio_files
@@ -77,5 +90,14 @@ class AudioFileProcessor:
             normalization_method = NormalizationHandler.get_method(method)
             normalized_features = normalization_method(audio_file.features)
             audio_file = self.__update_audio_file_features(audio_file, normalized_features)
+
+    def __load_audio_files_from_csv(self, file_path):
+        data = FileManager.read_from_csv(file_path, dtype={'modality': str, 'vocal_channel': str, 'emotion': str, 'emotional_intensity': str, 'statement': str, 'repetition': str, 'actor': str})
+        if len(data) > 0:
+            return AudioFileFactory.create_audio_files_from_csv(data)
+        else:
+            raise FileNotFoundError(f"Nie znaleziono pliku: {file_path}")
+
+
 
 

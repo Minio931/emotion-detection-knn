@@ -14,9 +14,10 @@ class DatasetHandler():
     def split_data(self, test_size=0.2, random_seed=None):
         return train_test_split(self.data, test_size=test_size, random_state=random_seed)
 
+    @staticmethod
     @logger(description="Zapis danych do pliku")
-    def save_data_to_file(self, data, file_path):
-        FileManager.save_to_csv(data, file_path)
+    def save_data_to_file(data, file_path, file_name='data'):
+        FileManager.save_to_csv(data, file_path, file_name)
 
     @logger(description="Wczytywanie danych z pliku")
     def assign_data_from_file(self, file_path, dtype=None):

@@ -5,6 +5,7 @@ import ast
 import re
 
 from src.decorators import logger
+from src.enums import Modality, VocalChannel, Emotion, EmotionalIntensity, Statement, Repetition, Actor
 
 
 class AudioFileFactory:
@@ -23,19 +24,18 @@ class AudioFileFactory:
     def create_audio_files_from_csv(data):
         audio_files = []
         for index, row in data.iterrows():
-                features = np.array(ast.literal_eval(re.sub(r'\s+', ', ', row['features'].strip())))
-                audio_files.append(AudioFile(
-                    row['path'],
-                    row['modality'],
-                    row['vocal_channel'],
-                    row['emotion'],
-                    row['emotional_intensity'],
-                    row['statement'],
-                    row['repetition'],
-                    row['actor'],
-                    features
-                ))
-
+            features = np.array(ast.literal_eval(re.sub(r'\s+', ', ', row['features'].strip())))
+            audio_files.append(AudioFile(
+                row['path'],
+                Modality[row['modality'].upper()].value,
+                VocalChannel[row['vocal_channel'].upper()].value,
+                Emotion[row['emotion'].upper()].value,
+                EmotionalIntensity[row['emotional_intensity'].upper()].value,
+                Statement[row['statement'].upper()].value,
+                Repetition[row['repetition'].upper()].value,
+                Actor[row['actor'].upper()].value if row['actor'].upper() in Actor.__members__ else int(row['actor']),
+                features
+            ))
         return audio_files
 
     @staticmethod

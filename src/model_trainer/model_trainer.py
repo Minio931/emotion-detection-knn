@@ -45,7 +45,7 @@ class ModelTrainer:
 
     @logger(description='Generowanie raportu')
     def __generate_classification_report(self, predictions, labels):
-        report = classification_report(labels, predictions, output_dict=True)
+        report = classification_report(labels, predictions, output_dict=True, zero_division=1)
         tabular_report = self.__generate_tabular_report(report)
         self.__save_report_to_file(tabular_report)
         self.__generate_confusion_matrix(predictions, labels)
@@ -83,13 +83,24 @@ class ModelTrainer:
         return table
 
     def __save_report_to_file(self, report):
-        report_path = os.path.join(self.model_folder_path + '/reports', f'classification_report_{self.model_code}.txt')
-        FileManager.save_to_file(report_path, report, 'Classification Report')
+        report_path = os.path.join(self.model_folder_path + '/reports')
+        report_file_name = f'classification_report_{self.model_code}.txt'
+        FileManager.save_to_file(report_path, report_file_name, report, 'Classification Report')
 
 
     def __filter_columns(self, data, columns):
         if not isinstance(data, pd.DataFrame):
             raise ValueError("Podałeś zły typ danych. Oczekiwano DataFrame")
 
-        return np.vstack([item[columns].values for item in data])
+        if isinstance(columns, str):
+            if columns == "features":
+                return np.vstack(data[columns].values)
+            return data[columns].values
+
+        if isinstance(columns, list):
+            if "features" in columns:
+                return np.vstack(data["features"].values)
+            return data[columns].values
+
+        raise ValueError("Columns should be either a string or a list of strings.")
 
