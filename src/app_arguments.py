@@ -64,7 +64,7 @@ def main():
     if args.visualize:
         print("3. Wizualizacja cech")
         audio_file_processor.visualize_features(plot_name=f'pca_features_{method}')
-        audio_file_processor.visualize_properties_distribution(properties=['emotion'], plot_name='emotion_distribution')
+        # audio_file_processor.visualize_properties_distribution(properties=['emotion'], plot_name='emotion_distribution')
 
     # Podział danych na trening i test
     print("4. Podział danych na zbiór treningowy i testowy")

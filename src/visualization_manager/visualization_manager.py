@@ -65,32 +65,54 @@ class VisualizationManager:
     def visualize_pca_features(self, audio_files, **kwargs):
         data = pd.DataFrame([audio_file.__dict__() for audio_file in audio_files])
 
-        if 'features' not in data.columns:
-            raise ValueError("Features column is missing in the data.")
+        required_columns = {'mfcc', 'chroma', 'zcr', 'rms', 'emotion'}
+        missing_columns = required_columns - set(data.columns)
+        if missing_columns:
+            raise ValueError(f"Brakujące kolumny w danych: {missing_columns}")
 
-        def handle_missing_features(features):
-            features = np.array(features)
-            if np.isnan(features).any():
-                nan_mean = np.nanmean(features)
-                features = np.nan_to_num(features, nan=nan_mean)
-            return features
+        def handle_missing_values(feature_array):
+            """Obsługa brakujących wartości w cechach"""
+            feature_array = np.array(feature_array)
+            if np.isnan(feature_array).any():
+                nan_mean = np.nanmean(feature_array)
+                feature_array = np.nan_to_num(feature_array, nan=nan_mean)
+            return feature_array
 
-        data['features'] = data['features'].apply(handle_missing_features)
+        data['mfcc'] = data['mfcc'].apply(handle_missing_values)
+        data['chroma'] = data['chroma'].apply(handle_missing_values)
+        data['zcr'] = data['zcr'].apply(handle_missing_values)
+        data['rms'] = data['rms'].apply(handle_missing_values)
 
-        features_array = np.vstack(data['features'])
+        mfccs = np.vstack(data['mfcc'])
+        chroma = np.vstack(data['chroma'])
+        zcr = np.vstack(data['zcr'])
+        rms = np.vstack(data['rms'])
+
+        combined_features = np.hstack([mfccs, chroma, zcr, rms])
 
         pca = PCA(n_components=2)
-        reduced_features = pca.fit_transform(features_array)
+        reduced_features = pca.fit_transform(combined_features)
 
         self.__configure_plot(**kwargs)
 
-        for emotion in data['emotion'].unique():
+        unique_emotions = data['emotion'].unique()
+        scatter_plots = []
+
+        for emotion in unique_emotions:
             indices = data['emotion'] == emotion
-            plt.scatter(reduced_features[indices, 0], reduced_features[indices, 1], label=emotion, alpha=0.7)
+            scatter = plt.scatter(
+                reduced_features[indices, 0],
+                reduced_features[indices, 1],
+                label=emotion,
+                alpha=0.7
+            )
+            scatter_plots.append(scatter)
+
+        plt.legend(title="Emocje", loc='best', fontsize='small')
+        plt.title(kwargs.get('title', 'PCA Features'))
 
         self.__save_plot(kwargs.get('plot_name', 'features_pca'))
         self.__clear_plot()
-
 
     def __configure_plot(self, **kwargs):
         plt.figure(figsize=kwargs.get('figsize', (10, 10)))

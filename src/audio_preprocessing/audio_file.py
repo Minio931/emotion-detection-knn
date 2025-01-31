@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 class AudioFile:
-    def __init__(self, path, modality, vocal_channel, emotion, emotional_intensity, statement, repetition, actor, features=None):
+    def __init__(self, path, modality, vocal_channel, emotion, emotional_intensity, statement, repetition, actor, features=None, mfcc=None, chroma=None, zcr=None, rms=None):
         self.path = path
         self.modality = str(modality)
         self.vocal_channel = str(vocal_channel)
@@ -14,6 +14,10 @@ class AudioFile:
         self.repetition = str(repetition)
         self.actor = str(actor)
         self.features = features
+        self.mfcc = mfcc
+        self.chroma = chroma
+        self.zcr = zcr
+        self.rms = rms
 
     def __str__(self):
         return f'Path: {self.path}\n' \
@@ -24,7 +28,12 @@ class AudioFile:
                f'Statement: {self.statement}\n' \
                f'Repetition: {self.repetition}\n' \
                f'Actor: {self.actor}\n' \
-               f'Features: {self.features}'
+                f'MFCC: {self.mfcc}\n' \
+                f'Chroma: {self.chroma}\n' \
+                f'ZCR: {self.zcr}\n' \
+                f'RMS: {self.rms}\n'
+
+
 
     def __repr__(self):
         return self.__str__()
@@ -39,7 +48,10 @@ class AudioFile:
             'statement': Statement.get_enum_value(self.statement),
             'repetition': Repetition.get_enum_value(self.repetition),
             'actor': Actor.get_enum_value(int(self.actor) % 2),
-            'features': self.features
+            'mfcc': self.mfcc,
+            'chroma': self.chroma,
+            'zcr': self.zcr,
+            'rms': self.rms,
         }
 
     def __dict_original__(self):
@@ -52,7 +64,10 @@ class AudioFile:
             'statement': self.statement,
             'repetition': self.repetition,
             'actor': self.actor,
-            'features': self.features
+            'mfcc': self.mfcc,
+            'chroma': self.chroma,
+            'zcr': self.zcr,
+            'rms': self.rms,
         }
 
 

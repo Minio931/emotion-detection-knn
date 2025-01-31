@@ -28,7 +28,7 @@ class ModelTrainer:
         self.visualization_manager = VisualizationManager(model_folder_path + '/visualizations')
 
     @logger(description='Trenowanie modelu')
-    def train(self, number_of_neighbours=5, data_columns=['features'], label_column='emotion'):
+    def train(self, number_of_neighbours=5, data_columns=['mfcc', 'chroma', 'zcr', 'rms'], label_column='emotion'):
         training_data = self.__filter_columns(self.training_data, data_columns)
         training_labels = self.__filter_columns(self.training_data, label_column)
 
@@ -36,7 +36,7 @@ class ModelTrainer:
         self.knn_model.fit(training_data, training_labels)
 
     @logger(description='Walidacja modelu')
-    def validate(self, data_columns=['features'], label_column='emotion'):
+    def validate(self, data_columns=['mfcc', 'chroma', 'zcr', 'rms'], label_column='emotion'):
         validation_data = self.__filter_columns(self.validation_data, data_columns)
         validation_labels = self.__filter_columns(self.validation_data, label_column)
 
@@ -93,14 +93,16 @@ class ModelTrainer:
             raise ValueError("Podałeś zły typ danych. Oczekiwano DataFrame")
 
         if isinstance(columns, str):
-            if columns == "features":
-                return np.vstack(data[columns].values)
-            return data[columns].values
+            return data[columns]
 
-        if isinstance(columns, list):
-            if "features" in columns:
-                return np.vstack(data["features"].values)
-            return data[columns].values
 
-        raise ValueError("Columns should be either a string or a list of strings.")
+        filtered_data = []
+        for column in columns:
+            if column not in data.columns:
+                raise ValueError(f"Brak kolumny: {column}")
+            else:
+                filtered_data.append(np.vstack(data[column]))
+
+        return np.hstack(filtered_data)
+
 

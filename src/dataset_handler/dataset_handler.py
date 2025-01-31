@@ -11,7 +11,7 @@ class DatasetHandler():
         self.data = data
 
     @logger(description="Podział danych na zbiór treningowy i testowy")
-    def split_data(self, test_size=0.2, random_seed=None):
+    def split_data(self, test_size=0.2, random_seed=1337):
         return train_test_split(self.data, test_size=test_size, random_state=random_seed)
 
     @staticmethod

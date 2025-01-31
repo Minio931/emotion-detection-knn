@@ -11,19 +11,19 @@ class NormalizationHandler:
     @staticmethod
     def standard_scaler(data):
         scaler = StandardScaler()
-        return scaler.fit_transform(data.reshape(-1, 1)).flatten()
+        return scaler.fit_transform(data).flatten()
 
     @logger(description='Normalizacja danych za pomocą MinMaxScaler')
     @staticmethod
     def min_max_scaling(data):
         scaler = MinMaxScaler()
-        return scaler.fit_transform(data.reshape(-1, 1)).flatten()
+        return scaler.fit_transform(data).flatten()
 
     @logger(description='Normalizacja danych za pomocą Normalizer')
     @staticmethod
     def l2_normalizer(data):
         normalizer = Normalizer(norm='l2')
-        return normalizer.transform(data.reshape(-1, 1)).flatten()
+        return normalizer.transform(data).flatten()
 
     @logger(description='Normalizacja danych za pomocą logarytmu')
     @staticmethod

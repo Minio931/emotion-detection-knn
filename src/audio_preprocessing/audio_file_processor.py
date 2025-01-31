@@ -79,17 +79,31 @@ class AudioFileProcessor:
         zcr = np.mean(librosa.feature.zero_crossing_rate(y=audio).T, axis=0)
         rms = np.mean(librosa.feature.rms(y=audio).T, axis=0)
 
-        return np.hstack([mfccs, chroma, zcr, rms])
+        return [mfccs, chroma, zcr, rms]
 
     def __update_audio_file_features(self, audio_file, features):
-        audio_file.features = features
+        mfccs, chroma, zcr, rms = features
+        audio_file.mfcc = np.array(mfccs)
+        audio_file.chroma = np.array(chroma)
+        audio_file.zcr = np.array(zcr)
+        audio_file.rms = np.array(rms)
+
         return audio_file
 
     def __normalize_features_with_selected_method(self, method):
-        for audio_file in self.audio_files:
-            normalization_method = NormalizationHandler.get_method(method)
-            normalized_features = normalization_method(audio_file.features)
-            audio_file = self.__update_audio_file_features(audio_file, normalized_features)
+        self.__normalize_property('mfcc', method)
+        self.__normalize_property('chroma', method)
+        self.__normalize_property('zcr', method)
+        self.__normalize_property('rms', method)
+
+
+    def __normalize_property(self, property, method):
+        data = [getattr(audio_file, property) for audio_file in self.audio_files]
+        normalized_properties_data = NormalizationHandler.get_method(method)(data)
+        for audio_file, normalized_property in zip(self.audio_files, normalized_properties_data):
+            setattr(audio_file, property, normalized_property)
+
+
 
     def __load_audio_files_from_csv(self, file_path):
         data = FileManager.read_from_csv(file_path, dtype={'modality': str, 'vocal_channel': str, 'emotion': str, 'emotional_intensity': str, 'statement': str, 'repetition': str, 'actor': str})

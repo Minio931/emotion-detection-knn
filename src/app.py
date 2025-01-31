@@ -29,7 +29,7 @@ def main():
         audio_file_processor.update_features_for_files()
         audio_files = audio_file_processor.audio_files
         data_frame = AudioFileProcessor.format_audio_files_as_dataframe(audio_files)
-        FileManager.save_to_csv(data_frame, os.path.join(data_path, 'audio_files.csv'))
+        FileManager.save_to_csv(data_frame, os.path.join(data_path), 'audio_files.csv')
     else:
         audio_file_processor.load_audio_files_from_csv(os.path.join(data_path, 'audio_files.csv'))
         audio_files = audio_file_processor.audio_files

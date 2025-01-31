@@ -24,17 +24,25 @@ class AudioFileFactory:
     def create_audio_files_from_csv(data):
         audio_files = []
         for index, row in data.iterrows():
-            features = np.array(ast.literal_eval(re.sub(r'\s+', ', ', row['features'].strip())))
+            mfcc = np.array(ast.literal_eval(re.sub(r'\s+', ', ', row['mfcc'].strip())))
+            chroma = np.array(ast.literal_eval(re.sub(r'\s+', ', ', row['chroma'].strip())))
+            zcr = np.array(ast.literal_eval(re.sub(r'\s+', ', ', row['zcr'].strip())))
+            rms = np.array(ast.literal_eval(re.sub(r'\s+', ', ', row['rms'].strip())))
+
             audio_files.append(AudioFile(
                 row['path'],
-                Modality[row['modality'].upper()].value,
-                VocalChannel[row['vocal_channel'].upper()].value,
-                Emotion[row['emotion'].upper()].value,
-                EmotionalIntensity[row['emotional_intensity'].upper()].value,
-                Statement[row['statement'].upper()].value,
-                Repetition[row['repetition'].upper()].value,
-                Actor[row['actor'].upper()].value if row['actor'].upper() in Actor.__members__ else int(row['actor']),
-                features
+                row['modality'],
+                row['vocal_channel'],
+                row['emotion'],
+                row['emotional_intensity'],
+                row['statement'],
+                row['repetition'],
+                row['actor'],
+                None,
+                mfcc,
+                chroma,
+                zcr,
+                rms
             ))
         return audio_files
 
